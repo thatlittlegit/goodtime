@@ -1,5 +1,4 @@
 #include <granite/granite.h>
-#include <gst/gst.h>
 #include <gtk/gtk.h>
 #include <stdbool.h>
 #include <time.h>
@@ -18,34 +17,20 @@ GraniteTimePicker* picker;
 bool stillopen = true;
 
 // Implemented here
-static gpointer play_sound(gpointer IGNORED);
 static void update(GraniteTimePicker* IGNORED, gpointer _IGNORED);
 static gboolean routine_update(gpointer IGNORED);
 void gt_activate(GApplication* application, gpointer IGNORED);
+bool get_still_open();
 
 // Implemented in Vala
+gpointer play_sound(gpointer IGNORED);
 char* timespan_to_string(GTimeSpan);
 
-gpointer play_sound(gpointer _)
+// HACK This code provides the stillopen variable to Vala. This should be
+// removed in future.
+bool get_still_open()
 {
-    UNUSED(_);
-
-    GstElement* pipeline = gst_parse_launch("playbin uri=https://www.winhistory.de/more/winstart/down/ont5.wav", NULL);
-    gst_element_set_state(pipeline, GST_STATE_PLAYING);
-
-    GstBus* bus = gst_element_get_bus(pipeline);
-    GstMessage* msg;
-    while (stillopen && (msg = gst_bus_pop_filtered(bus, GST_MESSAGE_ERROR | GST_MESSAGE_EOS)) == NULL) {
-        nanosleep(&poll_interval, NULL);
-    }
-
-    if (msg != NULL)
-        gst_message_unref(msg);
-    gst_object_unref(bus);
-    gst_element_set_state(pipeline, GST_STATE_NULL);
-    gst_object_unref(pipeline);
-
-    return 0;
+    return stillopen;
 }
 
 static void update(GraniteTimePicker* _, gpointer __)
