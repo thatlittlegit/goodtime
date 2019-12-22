@@ -17,34 +17,7 @@ GtkWindow* window;
 GraniteTimePicker* picker;
 bool stillopen = true;
 
-char* times_to_string(GTimeSpan span)
-{
-    char neg = '+';
-    if (span < 0) {
-        neg = '-';
-        span = -span;
-    }
-
-    int hour = span / G_TIME_SPAN_HOUR;
-    span %= G_TIME_SPAN_HOUR;
-    int minute = span / G_TIME_SPAN_MINUTE;
-    span %= G_TIME_SPAN_MINUTE;
-    int second = span / G_TIME_SPAN_SECOND;
-
-    // Assuming 2⁶⁴-1 is passed to us, then we know there will be a maximum of
-    // 2⁶⁴ / G_TIME_SPAN_HOUR hours (2562047788).
-    //
-    // With this upper bound, we know there is no way that the number of digits
-    // can be larger than 10 for the hours and 2 each for the minute/second. We allocate
-    // one extra for the nullbyte, and two extras for the colons.
-    //
-    // For the curious: I believe that 2⁶⁴ is 2562047788:00:54.
-#define TTS_ALLOCATED (10 + 2 + 2 + 1 + 2) // = 17
-    char* date = malloc(TTS_ALLOCATED);
-    snprintf(date, TTS_ALLOCATED, "%c%02d:%02d:%02d", neg, hour, minute, second);
-    return date;
-#undef TTS_ALLOCATED
-}
+char* timespan_to_string(GTimeSpan);
 
 gpointer play_sound(gpointer _)
 {
@@ -80,7 +53,7 @@ static void update(GraniteTimePicker* _, gpointer __)
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(headerbar), newSubtitle);
 
     int span = g_date_time_difference(time, g_date_time_new_now_local());
-    char* timeuntil = times_to_string(span);
+    char* timeuntil = timespan_to_string(span);
     gtk_label_set_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(window))), timeuntil);
     free(timeuntil);
     if (span < 0 && span >= -G_TIME_SPAN_SECOND) {
@@ -95,7 +68,8 @@ static gboolean routine_update(gpointer _)
     return TRUE;
 }
 
-static void activate(GApplication* app, gpointer userdata)
+#define activate gt_activate
+void gt_activate(GApplication* app, gpointer userdata)
 {
     UNUSED(userdata);
 
@@ -111,14 +85,4 @@ static void activate(GApplication* app, gpointer userdata)
     gtk_widget_show(GTK_WIDGET(window));
 
     g_timeout_add_seconds(1, routine_update, NULL);
-}
-
-int main(int argc, char** argv)
-{
-    gst_init(&argc, &argv);
-    GtkApplication* app = gtk_application_new("tk.thatlittlegit.goodtime", G_APPLICATION_FLAGS_NONE);
-    g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-    int status = g_application_run(G_APPLICATION(app), argc, argv);
-    g_object_unref(app);
-    return status;
 }
