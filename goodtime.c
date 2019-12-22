@@ -63,6 +63,7 @@ static void update(GraniteTimePicker* _, gpointer __)
     char* timeuntil = timespan_to_string(span);
     gtk_label_set_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(window))), timeuntil);
     free(timeuntil);
+
     if (span < 0 && span >= -G_TIME_SPAN_SECOND) {
         g_thread_try_new("GStreamer player", play_sound, NULL, NULL);
     }
