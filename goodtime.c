@@ -1,7 +1,6 @@
 #include <granite/granite.h>
 #include <gtk/gtk.h>
 #include <stdbool.h>
-#include <time.h>
 
 #define CLEAR_SECONDS_IN_GDATETIME(gdt) g_date_time_new_from_unix_local(g_date_time_to_unix(gdt) - g_date_time_get_second(gdt))
 
