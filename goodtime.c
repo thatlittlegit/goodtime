@@ -1,5 +1,8 @@
 #include <granite/granite.h>
+#include <gst/gst.h>
 #include <gtk/gtk.h>
+#include <stdbool.h>
+#include <time.h>
 
 #define GLADEOBJ(x) gtk_builder_get_object(builder, x)
 #define GraniteTimePicker GraniteWidgetsTimePicker
@@ -9,8 +12,10 @@
 #define UNUSED(x) (void)(x)
 #define MICROSECONDS_IN_DECADE 315576000000000
 
+const struct timespec poll_interval = { 0, 1000 };
 GtkWindow* window;
 GraniteTimePicker* picker;
+bool stillopen = true;
 
 char* times_to_string(GTimeSpan span)
 {
@@ -41,6 +46,28 @@ char* times_to_string(GTimeSpan span)
 #undef TTS_ALLOCATED
 }
 
+gpointer play_sound(gpointer _)
+{
+    UNUSED(_);
+
+    GstElement* pipeline = gst_parse_launch("playbin uri=https://www.winhistory.de/more/winstart/down/ont5.wav", NULL);
+    gst_element_set_state(pipeline, GST_STATE_PLAYING);
+
+    GstBus* bus = gst_element_get_bus(pipeline);
+    GstMessage* msg;
+    while (stillopen && (msg = gst_bus_pop_filtered(bus, GST_MESSAGE_ERROR | GST_MESSAGE_EOS)) == NULL) {
+        nanosleep(&poll_interval, NULL);
+    }
+
+    if (msg != NULL)
+        gst_message_unref(msg);
+    gst_object_unref(bus);
+    gst_element_set_state(pipeline, GST_STATE_NULL);
+    gst_object_unref(pipeline);
+
+    return 0;
+}
+
 static void update(GraniteTimePicker* _, gpointer __)
 {
     UNUSED(_);
@@ -52,9 +79,13 @@ static void update(GraniteTimePicker* _, gpointer __)
     GtkWidget* headerbar = gtk_window_get_titlebar(window);
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(headerbar), newSubtitle);
 
-    char* timeuntil = times_to_string(g_date_time_difference(time, g_date_time_new_now_local()));
+    int span = g_date_time_difference(time, g_date_time_new_now_local());
+    char* timeuntil = times_to_string(span);
     gtk_label_set_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(window))), timeuntil);
     free(timeuntil);
+    if (span < 0 && span >= -G_TIME_SPAN_SECOND) {
+        g_thread_try_new("GStreamer player", play_sound, NULL, NULL);
+    }
 }
 
 static gboolean routine_update(gpointer _)
@@ -84,6 +115,7 @@ static void activate(GApplication* app, gpointer userdata)
 
 int main(int argc, char** argv)
 {
+    gst_init(&argc, &argv);
     GtkApplication* app = gtk_application_new("tk.thatlittlegit.goodtime", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     int status = g_application_run(G_APPLICATION(app), argc, argv);

@@ -1,5 +1,5 @@
-LDLIBS=$(shell pkg-config --libs gtk+-3.0 granite)
-CFLAGS=$(shell pkg-config --cflags gtk+-3.0 granite) -g -Wall
+LDLIBS=$(shell pkg-config --libs gtk+-3.0 granite gstreamer-1.0)
+CFLAGS=$(shell pkg-config --cflags gtk+-3.0 granite gstreamer-1.0) -g -Wall
 
 goodtime: goodtime.o
 goodtime.o: goodtime.c goodtime.glade
