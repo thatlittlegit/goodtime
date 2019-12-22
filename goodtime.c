@@ -17,6 +17,13 @@ GtkWindow* window;
 GraniteTimePicker* picker;
 bool stillopen = true;
 
+// Implemented here
+static gpointer play_sound(gpointer IGNORED);
+static void update(GraniteTimePicker* IGNORED, gpointer _IGNORED);
+static gboolean routine_update(gpointer IGNORED);
+void gt_activate(GApplication* application, gpointer IGNORED);
+
+// Implemented in Vala
 char* timespan_to_string(GTimeSpan);
 
 gpointer play_sound(gpointer _)
