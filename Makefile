@@ -1,6 +1,6 @@
 LDLIBS=$(shell pkg-config --libs gtk+-3.0 granite gstreamer-1.0)
 CFLAGS=$(shell pkg-config --cflags gtk+-3.0 granite gstreamer-1.0) -g -Wall
-VALAFLAGS=--pkg=gtk+-3.0 --pkg=gstreamer-1.0 -g
+VALAFLAGS=--pkg=gtk+-3.0 --pkg=gstreamer-1.0 --pkg=granite -g
 goodtime: goodtime.o goodtime_vala.o
 goodtime.o: goodtime.c goodtime.glade
 

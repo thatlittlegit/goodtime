@@ -1,9 +1,11 @@
 using Gtk;
 using Gst;
+using Granite;
 
 [CCode]
-extern void gt_activate(GLib.Application application, void* userdata);
-
+extern void update_time(Granite.Widgets.TimePicker picker, Gtk.HeaderBar headerbar);
+[CCode]
+extern bool update(Gtk.Label label);
 [CCode]
 extern bool get_still_open();
 
@@ -58,12 +60,27 @@ class GoodTimeApplication : Gtk.Application {
 		return;
 	}
 
+	private void on_activate() {
+		var builder = new Gtk.Builder.from_file("goodtime.glade");
+
+		var window = (Gtk.Window) builder.get_object("window");
+		this.add_window(window);
+
+		var picker = new Granite.Widgets.TimePicker();
+		((Gtk.Box) builder.get_object("popover-container")).pack_start(picker, true, true, 0);
+		picker.show();
+		((Gtk.Button)builder.get_object("show-popover")).clicked.connect(() => ((Gtk.Popover)builder.get_object("popover")).popup());
+		((Gtk.Button)builder.get_object("accept-new-time")).clicked.connect(() => update_time(picker, (Gtk.HeaderBar)window.get_titlebar()));
+
+		window.show();
+
+		GLib.Timeout.add_seconds(1, () => update((Gtk.Label)builder.get_object("time-left")));
+	}
+
 	static int main(string[] args) {
 		Gst.init(ref args);
 		var app = new GoodTimeApplication();
-		app.activate.connect((application) => {
-				gt_activate(application, null);
-			});
+		app.activate.connect((application) => app.on_activate());
 		return app.run(args);
 	}
 }
