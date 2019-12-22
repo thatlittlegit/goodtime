@@ -81,7 +81,6 @@ static void show_popover(GtkButton* _, gpointer popover)
     gtk_popover_popup(GTK_POPOVER(popover));
 }
 
-#define activate gt_activate
 void gt_activate(GApplication* app, gpointer userdata)
 {
     UNUSED(userdata);
