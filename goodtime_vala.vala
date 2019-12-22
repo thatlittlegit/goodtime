@@ -6,8 +6,6 @@ using Granite;
 extern void update_time(Granite.Widgets.TimePicker picker, Gtk.HeaderBar headerbar);
 [CCode]
 extern bool update(Gtk.Label label);
-[CCode]
-extern bool get_still_open();
 
 public string timespan_to_string(GLib.TimeSpan span) {
 	var neg = '+';
@@ -52,7 +50,7 @@ class GoodTimeApplication : Gtk.Application {
 
 		Gst.Bus bus = pipeline.get_bus();
 		Gst.Message message;
-		while (get_still_open() && (message = bus.pop_filtered(Gst.MessageType.ERROR | Gst.MessageType.EOS)) == null) {
+		while ((message = bus.pop_filtered(Gst.MessageType.ERROR | Gst.MessageType.EOS)) == null) {
 			GLib.Thread.usleep(10);
 		}
 

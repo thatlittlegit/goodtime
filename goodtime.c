@@ -1,15 +1,12 @@
 #include <granite/granite.h>
 #include <gtk/gtk.h>
-#include <stdbool.h>
 
 #define CLEAR_SECONDS_IN_GDATETIME(gdt) g_date_time_new_from_unix_local(g_date_time_to_unix(gdt) - g_date_time_get_second(gdt))
 
-bool stillopen = true;
 GDateTime* set_time = NULL;
 
 // Implemented here
-bool update(GtkLabel* label);
-bool get_still_open();
+gboolean update(GtkLabel* label);
 void update_time(GraniteWidgetsTimePicker* picker, GtkHeaderBar* headerbar);
 
 // Implemented in Vala
@@ -17,14 +14,7 @@ void gt_activate(GApplication* application, gpointer IGNORED);
 gpointer play_sound(gpointer IGNORED);
 char* timespan_to_string(GTimeSpan);
 
-// HACK This code provides the stillopen variable to Vala. This should be
-// removed in future.
-bool get_still_open()
-{
-    return stillopen;
-}
-
-bool update(GtkLabel* label)
+gboolean update(GtkLabel* label)
 {
     if (set_time == NULL) {
         gtk_label_set_text(label, "+??:??:??");
