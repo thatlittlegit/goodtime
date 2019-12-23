@@ -77,21 +77,45 @@ class GoodTimeApplication : Gtk.Application {
 	}
 
 	private void on_activate() {
-		var builder = new Gtk.Builder.from_file("goodtime.glade");
+		var window = new Gtk.ApplicationWindow(this);
 
-		var window = (Gtk.Window) builder.get_object("window");
-		this.add_window(window);
+		var time_until = new Gtk.Label("+??:??:??");
+		var big_text_attrs = new Pango.AttrList();
+		big_text_attrs.insert(Pango.attr_scale_new(8));
+		big_text_attrs.insert(Pango.attr_family_new("monospace 10"));
+		big_text_attrs.insert(Pango.attr_weight_new(Pango.Weight.HEAVY));
+		time_until.set_attributes(big_text_attrs);
 
+		var headerbar = new Gtk.HeaderBar();
+		headerbar.set_title("GoodTime");
+		headerbar.show_close_button = true;
+		var show_alarm_picker = new Gtk.Button.from_icon_name("alarm-symbolic");
+
+		var popover = new Gtk.Popover(show_alarm_picker);
+		var popover_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 8);
 		var picker = new Granite.Widgets.TimePicker();
-		((Gtk.Box) builder.get_object("popover-container")).pack_start(picker, true, true, 0);
-		picker.show();
-		((Gtk.Button)builder.get_object("show-popover")).clicked.connect(() => ((Gtk.Popover)builder.get_object("popover")).popup());
-		((Gtk.Button)builder.get_object("accept-new-time")).clicked.connect(() => update_time(picker.time, (Gtk.HeaderBar)window.get_titlebar()));
+		var accept_new = new Gtk.Button.from_icon_name("object-select-symbolic");
 
+		popover.add(popover_box);
+		popover_box.pack_start(picker, true, true, 0);
+		popover_box.pack_end(accept_new, false, false, 0);
+		headerbar.pack_start(show_alarm_picker);
+		window.add(time_until);
+		window.set_titlebar(headerbar);
+
+		show_alarm_picker.clicked.connect(() => popover.popup());
+		accept_new.clicked.connect(() => update_time(picker.time, headerbar));
+
+		popover_box.show();
+		picker.show();
+		accept_new.show();
+		headerbar.show();
+		show_alarm_picker.show();
+		time_until.show();
 		window.show();
 
 		GLib.Timeout.add_seconds(1, () => {
-				update((Gtk.Label)builder.get_object("time-left"));
+				update(time_until);
 				return true;
 				});
 	}
