@@ -2,11 +2,6 @@ using Gtk;
 using Gst;
 using Granite;
 
-[CCode]
-extern void update_time(Granite.Widgets.TimePicker picker, Gtk.HeaderBar headerbar);
-[CCode]
-extern bool update(Gtk.Label label);
-
 public string timespan_to_string(GLib.TimeSpan span) {
 	var neg = '+';
 	if (span < 0) {
@@ -23,11 +18,8 @@ public string timespan_to_string(GLib.TimeSpan span) {
 	return "%c%02d:%02d:%02d".printf(neg, (int) hour, (int) minute, (int) second);
 }
 
-// HACK This code currently only exists for C FFI. When update() is translated,
-// consider replacing this with a lambda.
-public void* play_sound(void* userdata) {
-	GoodTimeApplication.play_sound();
-	return null;
+public GLib.DateTime clear_gdatetime_seconds(GLib.DateTime old) {
+	return new GLib.DateTime.from_unix_local(old.to_unix() - old.get_second());
 }
 
 class GoodTimeApplication : Gtk.Application {
@@ -37,6 +29,8 @@ class GoodTimeApplication : Gtk.Application {
 		}
 		// TODO setting
 	}
+
+	private GLib.DateTime? time;
 
 	public static void play_sound() {
 		Gst.Element pipeline;
@@ -58,6 +52,30 @@ class GoodTimeApplication : Gtk.Application {
 		return;
 	}
 
+	private void update_time(GLib.DateTime time, Gtk.HeaderBar headerbar) {
+		this.time = clear_gdatetime_seconds(time);
+		headerbar.subtitle = "time until %s".printf(time.format("%R"));
+	}
+
+	private void update(Gtk.Label label) {
+		if (time == null) {
+			label.set_text("+??:??:??");
+			return;
+		}
+
+		GLib.TimeSpan span = time.difference(new GLib.DateTime.now_local());
+		string timeuntil = timespan_to_string(span);
+		label.set_text(timeuntil);
+
+		if (span < 0 && span >= -GLib.TimeSpan.SECOND) {
+			// HACK there has to be a better way than returning 'bool'...
+			new GLib.Thread<bool>.try("GStreamer player", () => {
+					play_sound();
+					return true;
+			});
+		}
+	}
+
 	private void on_activate() {
 		var builder = new Gtk.Builder.from_file("goodtime.glade");
 
@@ -68,11 +86,14 @@ class GoodTimeApplication : Gtk.Application {
 		((Gtk.Box) builder.get_object("popover-container")).pack_start(picker, true, true, 0);
 		picker.show();
 		((Gtk.Button)builder.get_object("show-popover")).clicked.connect(() => ((Gtk.Popover)builder.get_object("popover")).popup());
-		((Gtk.Button)builder.get_object("accept-new-time")).clicked.connect(() => update_time(picker, (Gtk.HeaderBar)window.get_titlebar()));
+		((Gtk.Button)builder.get_object("accept-new-time")).clicked.connect(() => update_time(picker.time, (Gtk.HeaderBar)window.get_titlebar()));
 
 		window.show();
 
-		GLib.Timeout.add_seconds(1, () => update((Gtk.Label)builder.get_object("time-left")));
+		GLib.Timeout.add_seconds(1, () => {
+				update((Gtk.Label)builder.get_object("time-left"));
+				return true;
+				});
 	}
 
 	static int main(string[] args) {
