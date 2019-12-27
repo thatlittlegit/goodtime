@@ -1,7 +1,3 @@
-using Gtk;
-using Gst;
-using Granite;
-
 public string timespan_to_string(GLib.TimeSpan span) {
 	var neg = '+';
 	if (span < 0) {
@@ -23,34 +19,7 @@ public GLib.DateTime clear_gdatetime_seconds(GLib.DateTime old) {
 }
 
 class GoodTimeApplication : Gtk.Application {
-	public string alarm_uri {
-		get {
-			return "playbin uri=https://www.winhistory.de/more/winstart/down/ont5.wav";
-		}
-		// TODO setting
-	}
-
 	private GLib.DateTime? time;
-
-	public static void play_sound() {
-		Gst.Element pipeline;
-		try {
-			pipeline = Gst.parse_launch("playbin uri=https://www.winhistory.de/more/winstart/down/ont5.wav");
-		} catch (GLib.Error err) {
-			error("Failed to load GStreamer (error %d: %s)", err.code, err.message);
-		}
-
-		pipeline.set_state(Gst.State.PLAYING);
-
-		Gst.Bus bus = pipeline.get_bus();
-		Gst.Message message;
-		while ((message = bus.pop_filtered(Gst.MessageType.ERROR | Gst.MessageType.EOS)) == null) {
-			GLib.Thread.usleep(10);
-		}
-
-		pipeline.set_state(Gst.State.NULL);
-		return;
-	}
 
 	private void update_time(GLib.DateTime time, Gtk.HeaderBar headerbar) {
 		this.time = clear_gdatetime_seconds(time);
@@ -68,11 +37,15 @@ class GoodTimeApplication : Gtk.Application {
 		label.set_text(timeuntil);
 
 		if (span < 0 && span >= -GLib.TimeSpan.SECOND) {
-			// HACK there has to be a better way than returning 'bool'...
-			new GLib.Thread<bool>.try("GStreamer player", () => {
-					play_sound();
-					return true;
-			});
+			try {
+				// HACK there has to be a better way than returning 'bool'...
+				new GLib.Thread<bool>.try("GStreamer player", () => {
+						AudioSystem.play();
+						return true;
+				});
+			} catch (Error err) {
+				// ignore
+			}
 		}
 	}
 
@@ -90,6 +63,7 @@ class GoodTimeApplication : Gtk.Application {
 		headerbar.set_title("GoodTime");
 		headerbar.show_close_button = true;
 		var show_alarm_picker = new Gtk.Button.from_icon_name("alarm-symbolic");
+		var show_settings = new Gtk.Button.from_icon_name("preferences-system-symbolic");
 
 		var popover = new Gtk.Popover(show_alarm_picker);
 		var popover_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 8);
@@ -100,17 +74,20 @@ class GoodTimeApplication : Gtk.Application {
 		popover_box.pack_start(picker, true, true, 0);
 		popover_box.pack_end(accept_new, false, false, 0);
 		headerbar.pack_start(show_alarm_picker);
+		headerbar.pack_start(show_settings);
 		window.add(time_until);
 		window.set_titlebar(headerbar);
 
 		show_alarm_picker.clicked.connect(() => popover.popup());
 		accept_new.clicked.connect(() => update_time(picker.time, headerbar));
+		show_settings.clicked.connect(() => (new AudioSystem()).show());
 
 		popover_box.show();
 		picker.show();
 		accept_new.show();
-		headerbar.show();
+		show_settings.show();
 		show_alarm_picker.show();
+		headerbar.show();
 		time_until.show();
 		window.show();
 
