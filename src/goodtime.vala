@@ -18,7 +18,7 @@ public GLib.DateTime clear_gdatetime_seconds(GLib.DateTime old) {
 	return new GLib.DateTime.from_unix_local(old.to_unix() - old.get_second());
 }
 
-class GoodTimeApplication : Gtk.Application {
+class GoodTimeApplication : Gtk.ApplicationWindow {
 	private GLib.DateTime? time;
 
 	private void update_time(GLib.DateTime time, Gtk.HeaderBar headerbar) {
@@ -40,7 +40,7 @@ class GoodTimeApplication : Gtk.Application {
 			try {
 				// HACK there has to be a better way than returning 'bool'...
 				new GLib.Thread<bool>.try("GStreamer player", () => {
-						AudioSystem.play();
+						GoodTime.AudioSystem.play();
 						return true;
 				});
 			} catch (Error err) {
@@ -49,9 +49,11 @@ class GoodTimeApplication : Gtk.Application {
 		}
 	}
 
-	private void on_activate() {
-		var window = new Gtk.ApplicationWindow(this);
+	public GoodTimeApplication(Gtk.Application app) {
+		Object(application: app);
+	}
 
+	construct {
 		var time_until = new Gtk.Label("+??:??:??");
 		var big_text_attrs = new Pango.AttrList();
 		big_text_attrs.insert(Pango.attr_scale_new(8));
@@ -67,7 +69,7 @@ class GoodTimeApplication : Gtk.Application {
 
 		var popover = new Gtk.Popover(show_alarm_picker);
 		var popover_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 8);
-		var picker = new Granite.Widgets.TimePicker();
+		var picker = new Gtk.SpinButton(null, 1, int.MAX);
 		var accept_new = new Gtk.Button.from_icon_name("object-select-symbolic");
 
 		popover.add(popover_box);
@@ -75,12 +77,12 @@ class GoodTimeApplication : Gtk.Application {
 		popover_box.pack_end(accept_new, false, false, 0);
 		headerbar.pack_start(show_alarm_picker);
 		headerbar.pack_start(show_settings);
-		window.add(time_until);
-		window.set_titlebar(headerbar);
+		add(time_until);
+		set_titlebar(headerbar);
 
 		show_alarm_picker.clicked.connect(() => popover.popup());
-		accept_new.clicked.connect(() => update_time(picker.time, headerbar));
-		show_settings.clicked.connect(() => (new AudioSystem()).show());
+		accept_new.clicked.connect(() => update_time(new DateTime.from_unix_local(picker.get_value_as_int()), headerbar));
+		show_settings.clicked.connect(() => (new GoodTime.AudioSystem()).show());
 
 		popover_box.show();
 		picker.show();
@@ -89,18 +91,10 @@ class GoodTimeApplication : Gtk.Application {
 		show_alarm_picker.show();
 		headerbar.show();
 		time_until.show();
-		window.show();
 
 		GLib.Timeout.add_seconds(1, () => {
 				update(time_until);
 				return true;
 				});
-	}
-
-	static int main(string[] args) {
-		Gst.init(ref args);
-		var app = new GoodTimeApplication();
-		app.activate.connect((application) => app.on_activate());
-		return app.run(args);
 	}
 }

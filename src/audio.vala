@@ -1,13 +1,14 @@
 using Gst;
 using Gtk;
 
+namespace GoodTime {
 enum AlarmMode {
 	SYSTEM,
 	NETWORKED,
 	FILESYSTEM,
 }
 
-class AudioSettings : Granite.SimpleSettingsPage {
+class AudioSettings : Gtk.Bin {/*
 	public AudioSettings() {
 		GLib.Object(
 			title: "Alarm",
@@ -15,7 +16,7 @@ class AudioSettings : Granite.SimpleSettingsPage {
 			activatable: true,
 			icon_name: "applications-multimedia-symbolic"
 		);
-	}
+	}*/
 
 	construct {
 		var container = new Gtk.Box(Orientation.VERTICAL, 8);
@@ -38,8 +39,8 @@ class AudioSettings : Granite.SimpleSettingsPage {
 		container.add(fileloc);
 		container.add(network);
 
-		content_area.add(container);
-		container.show_all();
+		add(container);
+		show_all();
 	}
 }
 class AudioSystem : Gtk.Window {
@@ -84,5 +85,5 @@ class AudioSystem : Gtk.Window {
 
 		pipeline.set_state(State.NULL);
 	}
-
+}
 }

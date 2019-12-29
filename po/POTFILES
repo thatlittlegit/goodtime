@@ -1,0 +1,7 @@
+data/tk.thatlittlegit.goodtime.desktop.in
+data/tk.thatlittlegit.goodtime.appdata.xml.in
+data/tk.thatlittlegit.goodtime.gschema.xml
+src/window.ui
+src/main.vala
+src/window.vala
+
