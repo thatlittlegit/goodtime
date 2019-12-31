@@ -13,8 +13,10 @@ class AudioSystem {
 		switch ((AlarmMode)settings.get_enum("alarm-mode")) {
 			case SYSTEM: // TODO libcanberra
 			case FILESYSTEM:
-				// TODO use GIO
-				play_gstreamer("file://" + settings.get_string("alarm-fs-path"));
+				var fd = File.new_for_path(settings.get_string("alarm-fs-path"));
+				var uri = fd.get_uri();
+				play_gstreamer(uri);
+				g_free(uri); // This is necessary according to the docs
 				return;
 			case NETWORKED:
 				play_gstreamer(settings.get_string("alarm-net-uri"));
