@@ -1,7 +1,9 @@
 goodtime_sources = [
   'main.vala',
-  'goodtime.vala',
+  'window.vala',
   'audio.vala',
+  'date-utils.vala',
+  'settings.vala',
 ]
 
 goodtime_deps = [
@@ -11,6 +13,12 @@ goodtime_deps = [
   # submit a PR.
   dependency('gstreamer-1.0', version: '>= 1.0'),
 ]
+
+gnome = import('gnome')
+goodtime_sources += gnome.compile_resources('goodtime-resources',
+  'goodtime.gresource.xml',
+  c_name: 'goodtime'
+)
 
 executable('goodtime', goodtime_sources,
   vala_args: '--target-glib=2.50',  dependencies: goodtime_deps,

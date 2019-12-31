@@ -17,11 +17,12 @@
  */
 
 int main (string[] args) {
+	Gst.init(ref args);
 	var app = new Gtk.Application ("tk.thatlittlegit.goodtime", ApplicationFlags.FLAGS_NONE);
 	app.activate.connect (() => {
 		var win = app.active_window;
 		if (win == null) {
-			win = new GoodTimeApplication (app);
+			win = new GoodTime.Window(app);
 		}
 		win.present ();
 	});
