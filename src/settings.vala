@@ -38,6 +38,18 @@ namespace GoodTime {
 				}
 			}
 		}
+		private string _file_uri_setting;
+		public string file_uri_setting {
+			get {
+				return _file_uri_setting;
+			}
+			set {
+				_file_uri_setting = value;
+				if (fs_uri.get_uri() != value) {
+					fs_uri.set_uri(value);
+				}
+			}
+		}
 		[GtkChild]
 		private Gtk.CheckButton sound_notify_checkbox;
 		[GtkChild]
@@ -45,7 +57,7 @@ namespace GoodTime {
 		[GtkChild]
 		private Gtk.RadioButton net_opt;
 		[GtkChild]
-		private Gtk.FileChooserButton fs_path;
+		private Gtk.FileChooserButton fs_uri;
 		[GtkChild]
 		private Gtk.Entry net_uri;
 
@@ -71,6 +83,8 @@ namespace GoodTime {
 			});
 			settings.bind("alarm-enabled", sound_notify_checkbox, "active", SettingsBindFlags.DEFAULT);
 			settings.bind("alarm-net-uri", net_uri, "text", SettingsBindFlags.DEFAULT);
+			settings.bind("alarm-fs-uri", this, "file_uri_setting", SettingsBindFlags.DEFAULT);
+			fs_uri.file_set.connect(() => file_uri_setting = fs_uri.get_uri());
 			set_sensitivity_of_alarm_options(sound_notify_checkbox.active);
 		}
 

@@ -11,10 +11,7 @@ class AudioSystem {
 		var settings = new GLib.Settings("tk.thatlittlegit.goodtime");
 		switch ((AlarmMode)settings.get_enum("alarm-mode")) {
 			case FILESYSTEM:
-				var fd = File.new_for_path(settings.get_string("alarm-fs-path"));
-				var uri = fd.get_uri();
-				play_gstreamer(uri);
-				g_free(uri); // This is necessary according to the docs
+				play_gstreamer(settings.get_string("alarm-fs-uri"));
 				return;
 			case NETWORKED:
 				play_gstreamer(settings.get_string("alarm-net-uri"));

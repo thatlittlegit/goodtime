@@ -18,10 +18,10 @@
       to use the network for its alarm tone. (This URI must be usable with
       GStreamer.)</description>
     </key>
-    <key name="alarm-fs-path" type="s">
+    <key name="alarm-fs-uri" type="s">
       <default>""</default>
-      <summary>The filesystem path for an alarm tone.</summary>
-      <description>The filesystem path to be used as the alarm tone if GoodTime
+      <summary>The filesystem URI for an alarm tone.</summary>
+      <description>The filesystem URI to be used as the alarm tone if GoodTime
       is in Filesystem mode.</description>
     </key>
     <key name="alarm-enabled" type="b">
