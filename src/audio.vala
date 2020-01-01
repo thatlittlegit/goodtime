@@ -2,16 +2,14 @@ using Gst;
 
 namespace GoodTime {
 enum AlarmMode {
-	SYSTEM = 0,
-	FILESYSTEM = 1,
-	NETWORKED = 2,
+	FILESYSTEM = 0,
+	NETWORKED = 1,
 }
 
 class AudioSystem {
 	public static void play() {
 		var settings = new GLib.Settings("tk.thatlittlegit.goodtime");
 		switch ((AlarmMode)settings.get_enum("alarm-mode")) {
-			case SYSTEM: // TODO libcanberra
 			case FILESYSTEM:
 				var fd = File.new_for_path(settings.get_string("alarm-fs-path"));
 				var uri = fd.get_uri();

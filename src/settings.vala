@@ -29,7 +29,6 @@ namespace GoodTime {
 			set {
 				updating_alarm_mode = true;
 				_alarm_mode = value;
-				sys_opt.active = value == AlarmMode.SYSTEM;
 				fs_opt.active = value == AlarmMode.FILESYSTEM;
 				net_opt.active = value == AlarmMode.NETWORKED;
 				updating_alarm_mode = false;
@@ -42,8 +41,6 @@ namespace GoodTime {
 		[GtkChild]
 		private Gtk.CheckButton sound_notify_checkbox;
 		[GtkChild]
-		private Gtk.RadioButton sys_opt;
-		[GtkChild]
 		private Gtk.RadioButton fs_opt;
 		[GtkChild]
 		private Gtk.RadioButton net_opt;
@@ -53,8 +50,6 @@ namespace GoodTime {
 		private Gtk.Entry net_uri;
 
 		private void set_sensitivity_of_alarm_options(bool sensitive) {
-			// FIXME Support system sounds
-			sys_opt.set_sensitive(false);
 			fs_opt.set_sensitive(sensitive);
 			net_opt.set_sensitive(sensitive);
 		}
@@ -83,8 +78,6 @@ namespace GoodTime {
 		private void update_alarm_mode() {
 			if (updating_alarm_mode) {
 				return;
-			} else if (sys_opt.active) {
-				alarm_mode = AlarmMode.SYSTEM;
 			} else if (fs_opt.active) {
 				alarm_mode = AlarmMode.FILESYSTEM;
 			} else if (net_opt.active) {

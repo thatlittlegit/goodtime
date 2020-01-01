@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <schemalist>
   <enum id="tk.thatlittlegit.goodtime.AlarmMode">
-    <value nick="system" value="0" />
-    <value nick="filesystem" value="1" />
-    <value nick="networked" value="2" />
+    <value nick="filesystem" value="0" />
+    <value nick="networked" value="1" />
   </enum>
   <schema path="/tk/thatlittlegit/goodtime/" id="tk.thatlittlegit.goodtime">
     <key name="alarm-mode" enum="tk.thatlittlegit.goodtime.AlarmMode">
-      <!-- TODO change this to 'system' as soon as it is supported -->
       <default>'networked'</default>
       <summary>The alarm mode.</summary>
       <description>The alarm mode that will choose which alarm tone will be
