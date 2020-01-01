@@ -19,14 +19,15 @@ class AudioSystem {
 		}
 	}
 
-	protected static void play_gstreamer(string alarm_uri) {
+	private static void play_gstreamer(string alarm_uri) {
 		Element pipeline;
 
 		try {
 			pipeline = parse_launch("playbin uri=%s".printf(alarm_uri));
 			pipeline.set_state(State.PLAYING);
 		} catch (GLib.Error err) {
-			error("Failed to load GStreamer (error %d: %s)", err.code, err.message);
+			warning("Failed to load GStreamer (error %d: %s)", err.code, err.message);
+			return;
 		}
 
 		Gst.Bus bus = pipeline.get_bus();
