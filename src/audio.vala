@@ -7,6 +7,14 @@ enum AlarmMode {
 }
 
 class AudioSystem {
+	public static void play_async() throws GLib.Error {
+		// TODO don't use the bool type argument
+		new Thread<bool>.try("audio", () => {
+			play();
+			return true;
+		});
+	}
+
 	public static void play() {
 		var settings = new GLib.Settings("tk.thatlittlegit.goodtime");
 		switch ((AlarmMode)settings.get_enum("alarm-mode")) {

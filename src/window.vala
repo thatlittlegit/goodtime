@@ -70,11 +70,7 @@ namespace GoodTime {
 
 			if (time_remaining < 0 && time_remaining > -TimeSpan.SECOND) {
 				try {
-					// TODO don't use the bool type argument
-					new Thread<bool>.try("audio", () => {
-						AudioSystem.play();
-						return true;
-					});
+					AudioSystem.play_async();
 				} catch(Error err) { }
 			}
 		}

@@ -60,6 +60,8 @@ namespace GoodTime {
 		private Gtk.FileChooserButton fs_uri;
 		[GtkChild]
 		private Gtk.Entry net_uri;
+		[GtkChild]
+		private Gtk.InfoBar errorbar;
 
 		private void set_sensitivity_of_alarm_options(bool sensitive) {
 			fs_opt.set_sensitive(sensitive);
@@ -96,6 +98,16 @@ namespace GoodTime {
 				alarm_mode = AlarmMode.FILESYSTEM;
 			} else if (net_opt.active) {
 				alarm_mode = AlarmMode.NETWORKED;
+			}
+		}
+
+		[GtkCallback]
+		private void test_alarm_settings() {
+			try {
+				AudioSystem.play_async();
+			} catch (Error err) {
+				warning("Error testing audio: code %d (%s)", err.code, err.message);
+				errorbar.show();
 			}
 		}
 	}
