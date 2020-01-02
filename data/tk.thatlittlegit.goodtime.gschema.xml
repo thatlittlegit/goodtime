@@ -5,6 +5,10 @@
     <value nick="networked" value="1" />
   </enum>
   <schema path="/tk/thatlittlegit/goodtime/" id="tk.thatlittlegit.goodtime">
+    <key name="twenty-four-hour" type="b">
+      <default>false</default>
+      <summary>If GoodTime should use 24-hour time as opposed to 12-hour.</summary>
+    </key>
     <key name="alarm-mode" enum="tk.thatlittlegit.goodtime.AlarmMode">
       <default>'networked'</default>
       <summary>The alarm mode.</summary>

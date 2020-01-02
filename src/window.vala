@@ -51,7 +51,9 @@ namespace GoodTime {
 		[GtkCallback]
 		public void update_headerbar() {
 			time = datetime_from_hm(hour_spin.get_value_as_int(), minute_spin.get_value_as_int());
-			headerbar.set_subtitle("time until %s".printf(time.format("%X")));
+
+			var format = (new GLib.Settings("tk.thatlittlegit.goodtime").get_boolean("twenty-four-hour")) ? "%R" : "%r";
+			headerbar.set_subtitle("time until %s".printf(time.format(format)));
 		}
 
 		[GtkCallback]

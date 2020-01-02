@@ -62,7 +62,7 @@
       </packing>
     </child>
     <child>
-      <object class="GtkCheckButton" id="checkbutton1">
+      <object class="GtkCheckButton" id="twenty_four_hour">
         <property name="label" translatable="yes">Use 24-hour time</property>
         <property name="visible">True</property>
         <property name="sensitive">False</property>
