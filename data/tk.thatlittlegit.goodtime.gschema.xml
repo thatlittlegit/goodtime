@@ -33,5 +33,9 @@
       <summary>If the alarm is enabled.</summary>
       <!-- no description — this is not THAT hard to figure out -->
     </key>
+    <key name="notifications" type="b">
+      <default>true</default>
+      <summary>If notifications should be sent as a form of alarm.</summary>
+    </key>
   </schema>
 </schemalist>

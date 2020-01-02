@@ -72,7 +72,7 @@ namespace GoodTime {
 
 			if (time_remaining < 0 && time_remaining > -TimeSpan.SECOND) {
 				try {
-					AudioSystem.play_async();
+					AudioSystem.alert_async();
 				} catch(Error err) { }
 			}
 		}

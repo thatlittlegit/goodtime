@@ -7,16 +7,25 @@ enum AlarmMode {
 }
 
 class AudioSystem {
-	public static void play_async() throws GLib.Error {
+	public static void alert_async() throws GLib.Error {
 		// TODO don't use the bool type argument
-		new Thread<bool>.try("audio", () => {
-			play();
+		new Thread<bool>.try("alarm", () => {
+			alert();
 			return true;
 		});
 	}
 
-	public static void play() {
+	public static void alert() {
 		var settings = new GLib.Settings("tk.thatlittlegit.goodtime");
+
+		if (settings.get_boolean("notifications")) {
+			show_notification();
+		}
+
+		if (!settings.get_boolean("alarm-enabled")) {
+			return;
+		}
+
 		switch ((AlarmMode)settings.get_enum("alarm-mode")) {
 			case FILESYSTEM:
 				play_gstreamer(settings.get_string("alarm-fs-uri"));
@@ -44,6 +53,12 @@ class AudioSystem {
 		}
 
 		pipeline.set_state(State.NULL);
+	}
+
+	private static void show_notification() {
+		var notification = new Notification("Your GoodTime alarm has elapsed");
+		notification.set_body("Time to get to work!");
+		Application.get_default().send_notification(null, notification);
 	}
 }
 }

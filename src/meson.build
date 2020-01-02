@@ -1,7 +1,7 @@
 goodtime_sources = [
   'main.vala',
   'window.vala',
-  'audio.vala',
+  'alarm.vala',
   'date-utils.vala',
   'settings.vala',
 ]

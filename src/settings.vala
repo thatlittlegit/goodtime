@@ -64,6 +64,8 @@ namespace GoodTime {
 		private Gtk.InfoBar errorbar;
 		[GtkChild]
 		private Gtk.CheckButton twenty_four_hour;
+		[GtkChild]
+		private Gtk.CheckButton use_desktop_notifications;
 
 		private void set_sensitivity_of_alarm_options(bool sensitive) {
 			fs_opt.set_sensitive(sensitive);
@@ -89,6 +91,7 @@ namespace GoodTime {
 			settings.bind("alarm-net-uri", net_uri, "text", SettingsBindFlags.DEFAULT);
 			settings.bind("alarm-fs-uri", this, "file_uri_setting", SettingsBindFlags.DEFAULT);
 			settings.bind("twenty-four-hour", twenty_four_hour, "active", SettingsBindFlags.DEFAULT);
+			settings.bind("notifications", use_desktop_notifications, "active", SettingsBindFlags.DEFAULT);
 			fs_uri.file_set.connect(() => file_uri_setting = fs_uri.get_uri());
 			set_sensitivity_of_alarm_options(sound_notify_checkbox.active);
 		}
@@ -107,7 +110,7 @@ namespace GoodTime {
 		[GtkCallback]
 		private void test_alarm_settings() {
 			try {
-				AudioSystem.play_async();
+				AudioSystem.alert_async();
 			} catch (Error err) {
 				warning("Error testing audio: code %d (%s)", err.code, err.message);
 				errorbar.show();
